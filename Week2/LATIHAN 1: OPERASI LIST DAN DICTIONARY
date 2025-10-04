@@ -1,0 +1,76 @@
+# 🏋️ LATIHAN 1: OPERASI LIST DAN DICTIONARY
+
+# Data mentah dari sensor
+raw_data = [23.5, 24.1, 22.8, 25.3, 21.9, 26.7, 20.5, 24.8, 23.2, 25.9]
+
+# 1. Filter data yang berada di range 22-25 derajat
+filtered_data = [x for x in raw_data if 22 <= x <= 25]
+
+# 2. Normalisasi data ke range 0-1 menggunakan min-max scaling
+min_val, max_val = min(raw_data), max(raw_data)
+normalized_data = [(x - min_val) / (max_val - min_val) for x in raw_data]
+
+# 3. Hitung moving average dengan window size 3
+def moving_average(data, window_size):
+    result = []
+    for i in range(len(data) - window_size + 1):
+        window = data[i:i + window_size]
+        result.append(sum(window) / window_size)
+    return result
+
+ma_result = moving_average(raw_data, 3)
+
+print("Raw data:", raw_data)
+print("Filtered data (22-25):", filtered_data)
+print("Normalized data:", [round(x, 3) for x in normalized_data])
+print("Moving average (window=3):", [round(x, 3) for x in ma_result])
+
+
+# Dataset sample untuk klasifikasi
+dataset = [
+    {'features': [1.2, 3.4, 2.1], 'label': 'class_A'},
+    {'features': [2.3, 1.5, 4.2], 'label': 'class_B'},
+    {'features': [3.1, 2.8, 1.9], 'label': 'class_A'},
+    {'features': [4.2, 3.9, 2.5], 'label': 'class_B'}
+]
+
+# 4. Kelompokkan data berdasarkan label
+def group_by_label(data):
+    grouped = {}
+    for item in data:
+        label = item['label']
+        features = item['features']
+        grouped.setdefault(label, []).append(features)
+    return grouped
+
+grouped_data = group_by_label(dataset)
+
+# 5. Hitung rata-rata features per kelas
+def average_features_per_class(grouped_data):
+    averages = {}
+    for label, features_list in grouped_data.items():
+        n_features = len(features_list[0])
+        sums = [0] * n_features
+        for features in features_list:
+            for i, val in enumerate(features):
+                sums[i] += val
+        averages[label] = [s / len(features_list) for s in sums]
+    return averages
+
+avg_features = average_features_per_class(grouped_data)
+
+print("\nGrouped data by label:")
+for label, features in grouped_data.items():
+    print(f"{label}: {features}")
+
+print("\nAverage features per class:")
+for label, avg in avg_features.items():
+    print(f"{label}: {[round(x, 3) for x in avg]}")
+
+# Test assertions
+assert len(filtered_data) <= len(raw_data), "Filtered data should not be longer"
+assert all(0 <= x <= 1 for x in normalized_data), "Normalized data should be 0-1"
+assert 'class_A' in grouped_data, "Should contain class_A"
+assert 'class_B' in grouped_data, "Should contain class_B"
+
+print("\n✅ Semua assertions berhasil! Program berjalan dengan benar.")
